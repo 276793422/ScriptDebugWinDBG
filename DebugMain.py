@@ -33,22 +33,30 @@ def RunDebug():
 
     # 上面的是可选参数，后面的就都是必须的参数了
 
+    out_file = None
+
     if opt.Cmd:
         # -d --infile --outfile
         if IsStringValid(opt.Dump) and IsStringValid(opt.InFile) and IsStringValid(opt.OutFile):
             CommandControl(opt.Dump, opt.InFile, opt.OutFile)
+        elif IsStringValid(opt.Dump) and IsStringValid(opt.InFile) and opt.DefaultShow:
+            out_file = CommandControl(opt.Dump, opt.InFile, GetTempFilePath())
         else:
             print("需要参数 -d , --infile , --outfile")
     elif opt.Heap:
         # -d --outdir
         if IsStringValid(opt.Dump) and IsStringValid(opt.OutDir):
             HeapMemoryInfo(opt.Dump, opt.OutDir)
+        elif IsStringValid(opt.Dump) and opt.DefaultShow:
+            out_file = HeapMemoryInfo(opt.Dump, os.getenv('TEMP'))
         else:
             print("需要参数 -d , --outdir")
     elif opt.Address:
         # -d --outdir
         if IsStringValid(opt.Dump) and IsStringValid(opt.OutDir):
             AddressMemoryInfo(opt.Dump, opt.OutDir)
+        elif IsStringValid(opt.Dump) and opt.DefaultShow:
+            out_file = AddressMemoryInfo(opt.Dump, os.getenv('TEMP'))
         else:
             print("需要参数 -d , --outdir")
     elif opt.Umdh:
@@ -56,6 +64,8 @@ def RunDebug():
         # 参数2 ，结果输出路径
         if IsStringValid(opt.InFile) and IsStringValid(opt.OutDir):
             UmdhMemoryInfo(opt.InFile, opt.OutDir)
+        elif IsStringValid(opt.Dump) and opt.DefaultShow:
+            out_file = UmdhMemoryInfo(opt.Dump, os.getenv('TEMP'))
         else:
             print("需要参数 --infile , --outdir")
     elif opt.Callstack:
@@ -64,6 +74,8 @@ def RunDebug():
         # 参数2 ，结果输出路径
         if IsStringValid(opt.Dump) and IsStringValid(opt.OutDir):
             CallStack(opt.Dump, opt.OutDir)
+        elif IsStringValid(opt.Dump) and opt.DefaultShow:
+            out_file = CallStack(opt.Dump, os.getenv('TEMP'))
         else:
             print("需要参数 -d , --outdir")
     elif opt.Analyze:
@@ -71,10 +83,15 @@ def RunDebug():
         # 参数2 ，结果输出路径
         if IsStringValid(opt.Dump) and IsStringValid(opt.OutDir):
             AnalyzeDebug(opt.Dump, opt.OutDir)
+        elif IsStringValid(opt.Dump) and opt.DefaultShow:
+            out_file = AnalyzeDebug(opt.Dump, os.getenv('TEMP'))
         else:
             print("需要参数 -d , --outdir")
     else:
         print("关键参数啥都没有，去看帮助吧")
+
+    if IsStringValid(out_file):
+        RunProcess("notepad.exe", out_file)
 
     pass
 

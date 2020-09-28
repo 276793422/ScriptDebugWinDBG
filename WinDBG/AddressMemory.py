@@ -159,30 +159,23 @@ def AddressMemoryInfo(dump, dir):
     output_dir = dir
 
     print("step 1")
-    file1 = output_dir + '/output.1.txt'
-    if os.path.exists(file1):
-        os.unlink(file1)
+    file1 = GetFilePathInDir(dir, 1, True)
     GetAddressInfoInDump(dump, file1)
 
     # 第二步，根据内存信息，取所有内存块位置
     print("step 2")
-    file2 = output_dir + '/output.2.txt'
-    if os.path.exists(file2):
-        os.unlink(file2)
+    file2 = GetFilePathInDir(dir, 2, True)
     GetAddressUsedInfo(dump, file1, file2)
 
     # 第三步，根据地址信息，取所有可用得 address 命令
-    #    print("step 3")
-    file3 = output_dir + '/output.3.txt'
-    if os.path.exists(file3):
-        os.unlink(file3)
+    print("step 3")
+    file3 = GetFilePathInDir(dir, 3, True)
     GetAddressHeapInfo(dump, file2, file3)
 
     # 第四步，根据第三步得结果，取相关的内存信息，这里最好的情况下，是能得到所有调用栈的
     print("step 4")
-    file4 = output_dir + '/output.4.txt'
-    if os.path.exists(file4):
-        os.unlink(file4)
+    file4 = GetFilePathInDir(dir, 4, True)
     GetAddressFinalCallStack(dump, file3, file4)
 
+    return file4
     pass

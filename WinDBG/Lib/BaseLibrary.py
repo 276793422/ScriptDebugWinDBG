@@ -15,6 +15,8 @@ import tempfile
 
 # 符号文件路径，可以自动设置
 import configparser
+import uuid
+
 import win32event
 import win32process
 
@@ -98,6 +100,26 @@ def RunProcessWaitReturn(exe, cmd):
                                             win32process.CREATE_NO_WINDOW, None, None,
                                             win32process.STARTUPINFO())
         win32event.WaitForSingleObject(handle[0], -1)
+    else:
+        print("CreateProcess Error")
+    pass
+
+
+# 创建进程不等待
+
+def RunProcess(exe, cmd):
+    if exe == "" and cmd != "":
+        handle = win32process.CreateProcess(None, cmd, None, None, 0,
+                                            win32process.CREATE_NO_WINDOW, None, None,
+                                            win32process.STARTUPINFO())
+    elif exe != "" and cmd != "":
+        handle = win32process.CreateProcess(None, exe + " " + cmd, None, None, 0,
+                                            win32process.CREATE_NO_WINDOW, None, None,
+                                            win32process.STARTUPINFO())
+    elif exe != "" and cmd == "":
+        handle = win32process.CreateProcess(exe, '', None, None, 0,
+                                            win32process.CREATE_NO_WINDOW, None, None,
+                                            win32process.STARTUPINFO())
     else:
         print("CreateProcess Error")
     pass
@@ -269,3 +291,20 @@ def LoadFileToArray(path):
         file_line.append(line)
     file.close()
     return file_line
+
+
+# 创建一个 UUID
+
+def uuid1():
+    return str(uuid.uuid1()).replace("-","")
+
+
+# 从一个目录中，获取指定索引的一个文件名字，并且保证这个文件在文件名字获取的时候，是不存在，可用的
+
+def GetFilePathInDir(dir, step, uuid = False):
+    file = dir + '/output.' + str(step) + '.txt'
+    if uuid:
+        file += '.' + uuid1() + '.txt'
+    if os.path.exists(file):
+        os.unlink(file)
+    return file

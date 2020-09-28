@@ -25,10 +25,8 @@ def AnalyzeDebug(dump, dir):
     output_dir = dir
 
     print("step 1")
-    file1 = output_dir + '/output.1.txt'
-    if os.path.exists(file1):
-        os.unlink(file1)
+    file1 = GetFilePathInDir(dir, 1, True)
     GetAnalyze(dump, file1)
 
-
+    return file1
     pass

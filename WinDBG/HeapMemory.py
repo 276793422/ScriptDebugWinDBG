@@ -86,30 +86,25 @@ def GetMemoryAllInfo(memory_file, save_file):
 
 # 参数1 ，dmp 文件，必须是32位的
 # 参数2 ，结果输出路径
+# 返回，最终输出结果的文件
 
 def HeapMemoryInfo(dump, dir):
     # 第一步，取内存所有信息
-    output_dir = dir
 
     print("step 1")
-    file1 = output_dir + '/output.1.txt'
-    if os.path.exists(file1):
-        os.unlink(file1)
+    file1 = GetFilePathInDir(dir, 1, True)
     GetMemoryInfoInDump(dump, file1)
 
     # 第二步，根据内存信息，取所有内存块位置
     print("step 2")
-    file2 = output_dir + '/output.2.txt'
-    if os.path.exists(file2):
-        os.unlink(file2)
+    file2 = GetFilePathInDir(dir, 2, True)
     GetMemoryUsedInfo(dump, file1, file2)
 
     # 第三步，根据所有内存块位置，取所有内存信息
     print("step 3")
-    file3 = output_dir + '/output.3.txt'
-    if os.path.exists(file3):
-        os.unlink(file3)
+    file3 = GetFilePathInDir(dir, 3, True)
     GetMemoryAllInfo(file2, file3)
 
     print("over")
+    return file3
     pass

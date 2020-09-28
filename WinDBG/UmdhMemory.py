@@ -82,12 +82,11 @@ def UmdhMemoryInfo(file, dir):
     strArray = []
 
     print("step 1")
-    file1 = output_dir + '/output.1.txt'
-    if os.path.exists(file1):
-        os.unlink(file1)
+    file1 = GetFilePathInDir(dir, 1, True)
     strArray = DecodeUmdhInfo(file, file1)
 
     incre = GetAllMemoryIncre(strArray)
     print("Memory Incre :", incre / 1024 / 1024, "M")
 
+    return file1
     pass

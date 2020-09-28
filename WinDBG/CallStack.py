@@ -35,22 +35,14 @@ def CallStack(dump, dir):
     output_dir = dir
 
     print("step 1")
-    file1 = output_dir + '/output.1.txt'
-    if os.path.exists(file1):
-        os.unlink(file1)
+    file1 = GetFilePathInDir(dir, 1, True)
     GetAnalyze(dump, file1)
 
     print("step 2")
-    file2 = output_dir + '/output.2.txt'
-    if os.path.exists(file2):
-        os.unlink(file2)
+    file2 = GetFilePathInDir(dir, 2, True)
     GetCallStack(dump, file1, file2)
 
-    file_line = LoadFileToArray(file2)
-    for line in file_line:
-        print(line)
-
-
+    return file2
     pass
 
 

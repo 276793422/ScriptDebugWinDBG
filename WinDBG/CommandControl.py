@@ -15,4 +15,6 @@ from WinDBG.Windbg_head import *
 
 def CommandControl(dump, infile, outfile):
     RunCommandFileWithDebuger(dump, infile, outfile)
+
+    return outfile
     pass
