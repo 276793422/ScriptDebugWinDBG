@@ -17,14 +17,14 @@ from WinDBG.Windbg_head import *
 
 # 执行获取内存信息的命令，返回结果保存到文件中
 
-def GetMemoryInfoInDump(out_path):
-    RunCommandWithDebuger("!heap -s", out_path)
+def GetMemoryInfoInDump(dump, out_path):
+    RunCommandWithDebuger(dump, "!heap -s", out_path)
     pass
 
 
 # 从文件中取所有内存块的信息，然后再保存到文件中
 
-def GetMemoryUsedInfo(memory_list, output_file):
+def GetMemoryUsedInfo(dump, memory_list, output_file):
     strCommand = ""
     file = open(memory_list)
     for line in file:
@@ -36,7 +36,7 @@ def GetMemoryUsedInfo(memory_list, output_file):
     file.close()
 
     # 这里最后多了个换行，要去掉，否则windbg要多执行一次命令
-    RunCommandWithDebuger(strCommand[:len(strCommand) - 1], output_file)
+    RunCommandWithDebuger(dump, strCommand[:len(strCommand) - 1], output_file)
     pass
 
 
@@ -87,7 +87,7 @@ def GetMemoryAllInfo(memory_file, save_file):
 # 参数1 ，dmp 文件，必须是32位的
 # 参数2 ，结果输出路径
 
-def HeapMemoryInfo(dir):
+def HeapMemoryInfo(dump, dir):
     # 第一步，取内存所有信息
     output_dir = dir
 
@@ -95,14 +95,14 @@ def HeapMemoryInfo(dir):
     file1 = output_dir + '/output.1.txt'
     if os.path.exists(file1):
         os.unlink(file1)
-    GetMemoryInfoInDump(file1)
+    GetMemoryInfoInDump(dump, file1)
 
     # 第二步，根据内存信息，取所有内存块位置
     print("step 2")
     file2 = output_dir + '/output.2.txt'
     if os.path.exists(file2):
         os.unlink(file2)
-    GetMemoryUsedInfo(file1, file2)
+    GetMemoryUsedInfo(dump, file1, file2)
 
     # 第三步，根据所有内存块位置，取所有内存信息
     print("step 3")

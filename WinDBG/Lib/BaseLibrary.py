@@ -21,7 +21,7 @@ import win32process
 symbol_path = ''
 
 # dump 文件路径，外面可以传入
-dump_path = ''
+# dump_path = ''
 
 # 调试器路径
 debug_path = ''
@@ -105,10 +105,10 @@ def RunProcessWaitReturn(exe, cmd):
 
 # 设置dump 文件路径，这个必须优先调用
 
-def SetDumpPath(path):
-    global dump_path
-    if path != "":
-        dump_path = path
+# def SetDumpPath(path):
+#    global dump_path
+#    if path != "":
+#        dump_path = path
 
 
 # 设置dump 文件路径，这个必须优先调用
@@ -121,7 +121,7 @@ def SetSymbolPath(path):
 
 # 设置调试器文件路径，这个必须优先调用
 
-def SetSymbolPath(path):
+def SetDebugPath(path):
     global debug_path
     if path is not None and path != "":
         debug_path = path
@@ -151,12 +151,12 @@ def SaveStringToTempFile(msg):
 
 # 创建一个脚本执行的命令行，通过它可以让windbg 执行脚本，返回这个命令行
 
-def MakeScriptCommand(script_path):
+def MakeScriptCommand(dump, script_path):
     global symbol_path
-    global dump_path
-    if dump_path == "":
-        return ""
-    return '-y "' + symbol_path + '" -z "' + dump_path + '" -cf "' + script_path + '"'
+    # global dump_path
+    # if dump_path == "":
+    #     return ""
+    return '-y "' + symbol_path + '" -z "' + dump + '" -cf "' + script_path + '"'
     pass
 
 
@@ -188,10 +188,10 @@ def IsNumber(x):
 
 # 执行一个脚本文件
 
-def RunFileWithDebuger(file):
+def RunFileWithDebuger(dump, file):
     script_path = file
     debug_tool = MakeDebugToolPath()
-    debug_cmd = MakeScriptCommand(script_path)
+    debug_cmd = MakeScriptCommand(dump, script_path)
     try:
         RunProcessWaitReturn(debug_tool, debug_cmd)
         pass
@@ -203,26 +203,26 @@ def RunFileWithDebuger(file):
 
 # 执行一段脚本
 
-def RunScriptWithDebuger(script):
-    RunFileWithDebuger(SaveStringToTempFile(script))
+def RunScriptWithDebuger(dump, script):
+    RunFileWithDebuger(dump, SaveStringToTempFile(script))
 
 
 # 执行一条命令
 
-def RunCommandWithDebuger(cmd, out_path):
+def RunCommandWithDebuger(dump, cmd, out_path):
     script_text = '''
 .logopen ''' + out_path + '''
 ''' + cmd + '''
 .logclose
 q
 '''
-    RunScriptWithDebuger(script_text)
+    RunScriptWithDebuger(dump, script_text)
     pass
 
 
 # 执行多条命令
 
-def RunLotCommandWithDebuger(cmds, out_path):
+def RunLotCommandWithDebuger(dump, cmds, out_path):
     cmd = ""
     for line in cmds:
         if cmd == "":
@@ -232,15 +232,15 @@ def RunLotCommandWithDebuger(cmds, out_path):
                 cmd += "\n"
         cmd += line
 
-    RunCommandWithDebuger(cmd, out_path)
+    RunCommandWithDebuger(dump, cmd, out_path)
     pass
 
 
 # 执行一个命令文件
 
-def RunCommandFileWithDebuger(infile, outfile):
+def RunCommandFileWithDebuger(dump, infile, outfile):
     cmds = LoadFileToArray(infile)
-    RunLotCommandWithDebuger(cmds, outfile)
+    RunLotCommandWithDebuger(dump, cmds, outfile)
 
 
 # 数据写入文件
@@ -257,7 +257,6 @@ def SaveStingArrayIntoFile(info, save_file, split=""):
     with open(save_file, "w") as f:
         for line in info:
             f.write(line + split)
-        f.close()
 
 
 # 加载一个文件到数组

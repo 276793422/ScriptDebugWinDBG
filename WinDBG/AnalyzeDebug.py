@@ -15,12 +15,12 @@ from Lib.Lib_head import *
 from WinDBG.Windbg_head import *
 
 
-def GetAnalyze(output_file):
-    RunCommandWithDebuger("!analyze -v", output_file)
+def GetAnalyze(dump, output_file):
+    RunCommandWithDebuger(dump, "!analyze -v", output_file)
     pass
 
 
-def AnalyzeDebug(dir):
+def AnalyzeDebug(dump, dir):
     # 第一步，取内存所有信息
     output_dir = dir
 
@@ -28,7 +28,7 @@ def AnalyzeDebug(dir):
     file1 = output_dir + '/output.1.txt'
     if os.path.exists(file1):
         os.unlink(file1)
-    GetAnalyze(file1)
+    GetAnalyze(dump, file1)
 
 
     pass

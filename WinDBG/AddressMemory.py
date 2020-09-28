@@ -9,7 +9,10 @@
 """
 
 """
+import math
+import multiprocessing
 import os
+import threading
 
 from Lib.Lib_head import *
 from WinDBG.Windbg_head import *
@@ -17,8 +20,8 @@ from WinDBG.Windbg_head import *
 
 # 执行获取内存信息的命令，返回结果保存到文件中
 
-def GetAddressInfoInDump(out_path):
-    RunCommandWithDebuger("!address", out_path)
+def GetAddressInfoInDump(dump, out_path):
+    RunCommandWithDebuger(dump, "!address", out_path)
     pass
 
 
@@ -26,18 +29,18 @@ def GetAddressInfoInDump(out_path):
 
 def cmplist(x):
     num = x[20:28]
-    nRet = 0                # 如果不是数字，返回0，排最后去
+    nRet = 0  # 如果不是数字，返回0，排最后去
     if len(num) == 8:
         while num[0] == ' ':
             num = num[1:]
         if IsNumber(num):
-            nRet = int(num, 16)     # 如果是数字，返回数字，
+            nRet = int(num, 16)  # 如果是数字，返回数字，
     return nRet
 
 
 # 从文件中取所有内存块的信息，然后再保存到文件中
 
-def GetAddressUsedInfo(memory_list, output_file):
+def GetAddressUsedInfo(dump, memory_list, output_file):
     strCommand = ""
     file_line = LoadFileToArray(memory_list)
     result_list = sorted(file_line, key=cmplist, reverse=True)
@@ -72,13 +75,13 @@ def GetAddressUsedInfo(memory_list, output_file):
                 pass
 
     # 这里最后多了个换行，要去掉，否则windbg要多执行一次命令
-    RunCommandWithDebuger(strCommand[:len(strCommand) - 1], output_file)
+    RunCommandWithDebuger(dump, strCommand[:len(strCommand) - 1], output_file)
     pass
 
 
 # 从文件中取所有内存块的信息，然后再保存到文件中
 
-def GetAddressHeapInfo(memory_list, output_file):
+def GetAddressHeapInfo(dump, memory_list, output_file):
     strCommand = ""
     file_line = LoadFileToArray(memory_list)
     for line in file_line:
@@ -91,32 +94,67 @@ def GetAddressHeapInfo(memory_list, output_file):
                     strCommand += cmd + "\n"
                 pass
 
-    RunCommandWithDebuger(strCommand[:len(strCommand) - 1], output_file)
+    RunCommandWithDebuger(dump, strCommand[:len(strCommand) - 1], output_file)
     pass
 
 
 # 最后取结果
 
-def GetAddressFinalCallStack(memory_list, output_file):
+def GetAddressFinalCallStack(dump, memory_list, output_file):
     strCommand = ""
     file_line = LoadFileToArray(memory_list)
+    cmd_array = []
     for line in file_line:
         if ": !heap -x " in line:
             nIndex = line.find("!heap -x 0x")
             cmd = line[nIndex:]
-            if cmd in strCommand:
+            if cmd in cmd_array:
                 pass
             else:
-                strCommand += cmd + "\n"
-            pass
-        pass
+                cmd_array.append(cmd)
 
-    RunCommandWithDebuger(strCommand[:len(strCommand) - 1], output_file)
+    # 由于这个操作过于霸道，要查的内存可能非常多，数据可能非常多，导致执行时间非常长
+    # 所以需要重新组合数据，然后重新创建列表，重新执行指令
+    # 取CPU数量
+    nCpu = multiprocessing.cpu_count()
+    # 分配给每个CPU的任务量
+    nCount = math.ceil(len(cmd_array) / nCpu)
 
-    pass
+    threads = []
+    for i in range(0, nCpu):
+        strCommand = ""
+        cmds = cmd_array[int(i * nCount): int((i + 1) * nCount)]
+        for line in cmds:
+            strCommand += line + "\n"
+        t = threading.Thread(target=RunCommandWithDebuger,
+                             args=(dump, strCommand[:len(strCommand) - 1], output_file + "." + str(i) + ".txt"))
+        threads.append(t)
+        t.start()
+
+    # 等待所有线程任务结束。
+    for t in threads:
+        t.join()
+
+    # print("执行线程全部结束 ： 【" + str(nCpu) + "】")
+    # RunCommandWithDebuger(strCommand[:len(strCommand) - 1], output_file)
+    cmd_array.clear()
+    for i in range(0, nCpu):
+        strFileName = output_file + "." + str(i) + ".txt"
+        strFile = LoadFileToArray(strFileName)
+        for line in strFile:
+            if line.startswith("Opened log file "):
+                continue
+            if "> .logclose" in line:
+                continue
+            if line.startswith("Closing open log file "):
+                continue
+            cmd_array.append(line + "\n")
+        os.remove(strFileName)
+
+    SaveStingArrayIntoFile(cmd_array, output_file)
 
 
-def AddressMemoryInfo(dir):
+def AddressMemoryInfo(dump, dir):
     # 第一步，取内存所有信息
     output_dir = dir
 
@@ -124,28 +162,27 @@ def AddressMemoryInfo(dir):
     file1 = output_dir + '/output.1.txt'
     if os.path.exists(file1):
         os.unlink(file1)
-    GetAddressInfoInDump(file1)
+    GetAddressInfoInDump(dump, file1)
 
     # 第二步，根据内存信息，取所有内存块位置
     print("step 2")
     file2 = output_dir + '/output.2.txt'
     if os.path.exists(file2):
         os.unlink(file2)
-    GetAddressUsedInfo(file1, file2)
+    GetAddressUsedInfo(dump, file1, file2)
 
     # 第三步，根据地址信息，取所有可用得 address 命令
-    print("step 3")
+    #    print("step 3")
     file3 = output_dir + '/output.3.txt'
     if os.path.exists(file3):
         os.unlink(file3)
-    GetAddressHeapInfo(file2, file3)
+    GetAddressHeapInfo(dump, file2, file3)
 
     # 第四步，根据第三步得结果，取相关的内存信息，这里最好的情况下，是能得到所有调用栈的
     print("step 4")
     file4 = output_dir + '/output.4.txt'
     if os.path.exists(file4):
         os.unlink(file4)
-    GetAddressFinalCallStack(file3, file4)
-
+    GetAddressFinalCallStack(dump, file3, file4)
 
     pass

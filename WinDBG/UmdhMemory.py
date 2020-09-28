@@ -54,15 +54,25 @@ def DecodeUmdhInfo(file, file_out):
 
 def GetAllMemoryIncre(strArray):
     memory = 0
+    nAlloc = 0
+    nFree = 0
     for line in strArray:
-        strLine = line[:10]
-        if strLine[0] == '+':
-            n = int(strLine[1:].strip(), 16)
-            memory += n
-        if strLine[0] == '-':
-            n = int(strLine[1:].strip(), 16)
-            memory -= n
+        lines = line.split('\n')
+        for linet in lines:
+            if len(linet) <= 1:
+                continue
+            strLine = linet[:10]
+            if strLine[0] == '+' and linet.find("allocs	") != -1:
+                n = int(strLine[1:].strip(), 16)
+                memory += n
+                nAlloc += n
+            if strLine[0] == '-' and linet.find("allocs	") != -1:
+                n = int(strLine[1:].strip(), 16)
+                memory -= n
+                nFree += n
 
+    print("nAlloc = [" + str(nAlloc) + "]")
+    print("nFree = [" + str(nFree) + "]")
     return memory
     pass
 
@@ -78,6 +88,6 @@ def UmdhMemoryInfo(file, dir):
     strArray = DecodeUmdhInfo(file, file1)
 
     incre = GetAllMemoryIncre(strArray)
-    print("Memory Incre :", incre / 1024 / 1024 , "M")
+    print("Memory Incre :", incre / 1024 / 1024, "M")
 
     pass

@@ -14,44 +14,47 @@ import sys
 from Stdafx_head import *
 
 
+def IsStringValid(p):
+    if p is not None and p != "":
+        return True
+    return False
+
+
 def RunDebug():
     opt, args = GetArgsInfo()
 
     # 如果符号路径存在，就设置
-    if opt.Symbol != "":
+    if opt.Symbol is not None and opt.Symbol != "":
         SetSymbolPath(opt.Symbol)
 
     # 如果调试器路径存在，就设置
-    if opt.Path != "":
-        SetSymbolPath(opt.Path)
+    if opt.Path is not None and opt.Path != "":
+        SetDebugPath(opt.Path)
 
     # 上面的是可选参数，后面的就都是必须的参数了
 
     if opt.Cmd:
         # -d --infile --outfile
-        if opt.Dump != "" and opt.InFile != "" and opt.OutFile != "":
-            SetDumpPath(opt.Dump)
+        if IsStringValid(opt.Dump) and IsStringValid(opt.InFile) and IsStringValid(opt.OutFile):
             CommandControl(opt.Dump, opt.InFile, opt.OutFile)
         else:
             print("需要参数 -d , --infile , --outfile")
     elif opt.Heap:
         # -d --outdir
-        if opt.Dump != "" and opt.OutDir != "":
-            SetDumpPath(opt.Dump)
-            HeapMemoryInfo(opt.OutDir)
+        if IsStringValid(opt.Dump) and IsStringValid(opt.OutDir):
+            HeapMemoryInfo(opt.Dump, opt.OutDir)
         else:
             print("需要参数 -d , --outdir")
     elif opt.Address:
         # -d --outdir
-        if opt.Dump != "" and opt.OutDir != "":
-            SetDumpPath(opt.Dump)
-            AddressMemoryInfo(opt.OutDir)
+        if IsStringValid(opt.Dump) and IsStringValid(opt.OutDir):
+            AddressMemoryInfo(opt.Dump, opt.OutDir)
         else:
             print("需要参数 -d , --outdir")
     elif opt.Umdh:
         # 参数1 ，umdh 结果文件
         # 参数2 ，结果输出路径
-        if opt.InFile != "" and opt.OutDir != "":
+        if IsStringValid(opt.InFile) and IsStringValid(opt.OutDir):
             UmdhMemoryInfo(opt.InFile, opt.OutDir)
         else:
             print("需要参数 --infile , --outdir")
@@ -59,17 +62,15 @@ def RunDebug():
         # --callstack -d D:\dump\3\MEMORY\MEMORY.DMP --outdir D:\dump\2.2
         # 参数1 ，dmp 文件，必须是32位的
         # 参数2 ，结果输出路径
-        if opt.Dump != "" and opt.OutDir != "":
-            SetDumpPath(opt.Dump)
-            CallStack(opt.OutDir)
+        if IsStringValid(opt.Dump) and IsStringValid(opt.OutDir):
+            CallStack(opt.Dump, opt.OutDir)
         else:
             print("需要参数 -d , --outdir")
     elif opt.Analyze:
         # 参数1 ，dmp 文件，必须是32位的
         # 参数2 ，结果输出路径
-        if opt.Dump != "" and opt.OutDir != "":
-            SetDumpPath(opt.Dump)
-            AnalyzeDebug(opt.OutDir)
+        if IsStringValid(opt.Dump) and IsStringValid(opt.OutDir):
+            AnalyzeDebug(opt.Dump, opt.OutDir)
         else:
             print("需要参数 -d , --outdir")
     else:
