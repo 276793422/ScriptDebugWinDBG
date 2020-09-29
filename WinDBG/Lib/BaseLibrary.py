@@ -20,10 +20,8 @@ import uuid
 import win32event
 import win32process
 
+# 符号路径
 symbol_path = ''
-
-# dump 文件路径，外面可以传入
-# dump_path = ''
 
 # 调试器路径
 debug_path = ''
@@ -127,14 +125,6 @@ def RunProcess(exe, cmd):
 
 # 设置dump 文件路径，这个必须优先调用
 
-# def SetDumpPath(path):
-#    global dump_path
-#    if path != "":
-#        dump_path = path
-
-
-# 设置dump 文件路径，这个必须优先调用
-
 def SetSymbolPath(path):
     global symbol_path
     if path is not None and path != "":
@@ -175,9 +165,6 @@ def SaveStringToTempFile(msg):
 
 def MakeScriptCommand(dump, script_path):
     global symbol_path
-    # global dump_path
-    # if dump_path == "":
-    #     return ""
     return '-y "' + symbol_path + '" -z "' + dump + '" -cf "' + script_path + '"'
     pass
 
@@ -255,7 +242,6 @@ def RunLotCommandWithDebuger(dump, cmds, out_path):
         cmd += line
 
     RunCommandWithDebuger(dump, cmd, out_path)
-    pass
 
 
 # 执行一个命令文件
@@ -263,6 +249,7 @@ def RunLotCommandWithDebuger(dump, cmds, out_path):
 def RunCommandFileWithDebuger(dump, infile, outfile):
     cmds = LoadFileToArray(infile)
     RunLotCommandWithDebuger(dump, cmds, outfile)
+    return outfile
 
 
 # 数据写入文件
@@ -271,6 +258,7 @@ def SaveStingIntoFile(info, save_file):
     with open(save_file, "w") as f:
         f.write(info)
         f.close()
+    return save_file
 
 
 # 数据写入文件
@@ -279,6 +267,7 @@ def SaveStingArrayIntoFile(info, save_file, split=""):
     with open(save_file, "w") as f:
         for line in info:
             f.write(line + split)
+    return save_file
 
 
 # 加载一个文件到数组

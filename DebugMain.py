@@ -36,6 +36,13 @@ def RunDebug():
     out_file = None
 
     if opt.Cmd:
+        if IsStringValid(opt.Dump) and IsStringValid(opt.CmdLine) and IsStringValid(opt.OutFile):
+            CommandLineControl(opt.Dump, opt.CmdLine, opt.OutFile)
+        elif IsStringValid(opt.Dump) and IsStringValid(opt.CmdLine) and opt.DefaultShow:
+            out_file = CommandLineControl(opt.Dump, opt.CmdLine, GetTempFilePath())
+        else:
+            print("需要参数 -d , -c , --outfile")
+    elif opt.CmdFile:
         # -d --infile --outfile
         if IsStringValid(opt.Dump) and IsStringValid(opt.InFile) and IsStringValid(opt.OutFile):
             CommandControl(opt.Dump, opt.InFile, opt.OutFile)

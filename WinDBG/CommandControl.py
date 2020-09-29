@@ -10,6 +10,7 @@
 
 """
 
+from Lib.Lib_head import *
 from WinDBG.Windbg_head import *
 
 
@@ -17,4 +18,9 @@ def CommandControl(dump, infile, outfile):
     RunCommandFileWithDebuger(dump, infile, outfile)
 
     return outfile
-    pass
+
+
+def CommandLineControl(dump, cmd, outfile):
+    f = SaveStingIntoFile(cmd, GetTempFilePath())
+    CommandControl(dump, f, outfile)
+    return outfile
