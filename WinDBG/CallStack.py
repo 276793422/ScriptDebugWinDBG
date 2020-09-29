@@ -30,9 +30,10 @@ def GetCallStack(dump, input_file, output_file):
     pass
 
 
-def CallStack(dump, dir):
+def CallStack(dump, dir=None):
     # 第一步，取内存所有信息
-    output_dir = dir
+    if dir is None:
+        dir = GetTempDirPath()
 
     print("step 1")
     file1 = GetFilePathInDir(dir, 1, True)

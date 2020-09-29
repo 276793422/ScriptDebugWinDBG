@@ -88,8 +88,10 @@ def GetMemoryAllInfo(memory_file, save_file):
 # 参数2 ，结果输出路径
 # 返回，最终输出结果的文件
 
-def HeapMemoryInfo(dump, dir):
+def HeapMemoryInfo(dump, dir=None):
     # 第一步，取内存所有信息
+    if dir is None:
+        dir = GetTempDirPath()
 
     print("step 1")
     file1 = GetFilePathInDir(dir, 1, True)

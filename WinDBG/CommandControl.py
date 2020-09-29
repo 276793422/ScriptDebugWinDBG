@@ -14,13 +14,19 @@ from Lib.Lib_head import *
 from WinDBG.Windbg_head import *
 
 
-def CommandControl(dump, infile, outfile):
+def CommandControl(dump, infile, outfile=None):
+    if not IsStringValid(outfile):
+        outfile = GetTempFilePath()
     RunCommandFileWithDebuger(dump, infile, outfile)
 
     return outfile
 
 
-def CommandLineControl(dump, cmd, outfile):
+# 如果输出文件参数不存在，那么就内部创建一个
+
+def CommandLineControl(dump, cmd, outfile=None):
+    if not IsStringValid(outfile):
+        outfile = GetTempFilePath()
     f = SaveStingIntoFile(cmd, GetTempFilePath())
     CommandControl(dump, f, outfile)
     return outfile

@@ -77,8 +77,9 @@ def GetAllMemoryIncre(strArray):
     pass
 
 
-def UmdhMemoryInfo(file, dir):
-    output_dir = dir
+def UmdhMemoryInfo(file, dir=None):
+    if dir is None:
+        dir = GetTempDirPath()
     strArray = []
 
     print("step 1")

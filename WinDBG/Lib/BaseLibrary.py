@@ -149,6 +149,12 @@ def GetTempFilePath():
     pass
 
 
+# 获取临时文件目录
+
+def GetTempDirPath():
+    return os.getenv('TEMP')
+    pass
+
 # 保存内容到一个临时文件，返回临时文件路径
 
 def SaveStringToTempFile(msg):
@@ -297,3 +303,11 @@ def GetFilePathInDir(dir, step, uuid = False):
     if os.path.exists(file):
         os.unlink(file)
     return file
+
+
+# 判断字符串是否有效
+
+def IsStringValid(p):
+    if p is not None and p != "":
+        return True
+    return False
