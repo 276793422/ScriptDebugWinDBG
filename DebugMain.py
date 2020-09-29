@@ -14,7 +14,6 @@ import sys
 from Stdafx_head import *
 
 
-
 def RunDebug():
     opt, args = GetArgsInfo()
 
@@ -82,6 +81,8 @@ def RunDebug():
     else:
         print("关键参数啥都没有，去看帮助吧")
 
+    if IsStringValid(out_file):
+        RemoveFileLogInfo(out_file)
     if opt.DefaultShow and IsStringValid(out_file):
         RunProcess("notepad.exe", out_file)
 

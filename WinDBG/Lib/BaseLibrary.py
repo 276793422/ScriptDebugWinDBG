@@ -311,3 +311,31 @@ def IsStringValid(p):
     if p is not None and p != "":
         return True
     return False
+
+
+# 去除文件中log 部分信息
+
+def RemoveFileLogInfo(file):
+    strFile = LoadFileToArray(file)
+    os.remove(file)
+    strArray = []
+    start = 0
+    end = len(strFile) + 1
+    for line in strFile:
+        start += 1
+        # 第一行去掉
+        if start == 1 and line.startswith("Opened log file "):
+            continue
+        # 倒数第三行
+        if start == end - 2 and "> .logclose" in line:
+            continue
+        # 倒数第二行
+        if start == end - 1 and line.startswith("Closing open log file "):
+            continue
+        # 倒数第一行
+        if start == end and line == "":
+            continue
+        strArray.append(line + "\n")
+    SaveStingArrayIntoFile(strArray, file)
+    return file
+

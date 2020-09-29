@@ -135,21 +135,14 @@ def GetAddressFinalCallStack(dump, memory_list, output_file):
     for t in threads:
         t.join()
 
-    # print("执行线程全部结束 ： 【" + str(nCpu) + "】")
-    # RunCommandWithDebuger(strCommand[:len(strCommand) - 1], output_file)
     cmd_array.clear()
     for i in range(0, nCpu):
         strFileName = output_file + "." + str(i) + ".txt"
+        RemoveFileLogInfo(strFileName)
         strFile = LoadFileToArray(strFileName)
-        for line in strFile:
-            if line.startswith("Opened log file "):
-                continue
-            if "> .logclose" in line:
-                continue
-            if line.startswith("Closing open log file "):
-                continue
-            cmd_array.append(line + "\n")
         os.remove(strFileName)
+        for line in strFile:
+            cmd_array.append(line + "\n")
 
     SaveStingArrayIntoFile(cmd_array, output_file)
 
