@@ -23,6 +23,9 @@ symbol_path = ''
 # 调试器路径
 debug_path = ''
 
+# 调试器程序名字
+debugger_name = 'cdb.exe'
+
 
 # 初始化调试器相关功能
 
@@ -127,7 +130,12 @@ def SetDebugPath(path):
 
 def MakeScriptCommand(dump, script_path):
     global symbol_path
-    return '-y "' + symbol_path + '" -z "' + dump + '" -cf "' + script_path + '"'
+    strCommand = '-z "' + dump + '" -cf "' + script_path + '"'
+    # 这里要支持，如果没有符号，那么就不拼符号参数
+    if IsStringValid(symbol_path):
+        return '-y "' + symbol_path + '" ' + strCommand
+    else:
+        return strCommand
     pass
 
 
@@ -135,7 +143,8 @@ def MakeScriptCommand(dump, script_path):
 
 def MakeDebugToolPath():
     global debug_path
-    return '"' + debug_path + '/cdb.exe' + '"'
+    global debugger_name
+    return '"' + debug_path + '/' + debugger_name + '"'
     pass
 
 
@@ -221,4 +230,3 @@ def RemoveFileLogInfo(file):
         strArray.append(line + "\n")
     SaveStingArrayIntoFile(strArray, file)
     return file
-
