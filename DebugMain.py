@@ -14,9 +14,7 @@ import sys
 from Stdafx_head import *
 
 
-def RunDebug():
-    opt, args = GetArgsInfo()
-
+def RunDebugDump(opt, args):
     # 如果符号路径存在，就设置
     if opt.Symbol is not None and opt.Symbol != "":
         SetSymbolPath(opt.Symbol)
@@ -86,8 +84,48 @@ def RunDebug():
     if opt.DefaultShow and IsStringValid(out_file):
         RunProcess("notepad.exe", out_file)
 
-    pass
+    return out_file
 
+
+# 执行调试功能，这里主要分两部分，一部分是单一的dump 调试，一部分是多个dump 调试
+
+def RunDebug():
+    opt, args = GetArgsInfo()
+    dumpArray = []
+
+    # 单个dump
+    if opt.MulDump is None or opt.MulDump == False:
+        # 直接把自己压进去就完事了
+        dumpArray.append(opt.Dump)
+
+    # 多个dump
+    else:
+        # 已经进来了，就不需要它了
+        opt.MulDump = None
+        if not IsStringValid(opt.Dump):
+            print("多个dump分析，但是dump文件列表不明")
+        else:
+            szDump = opt.Dump
+            if os.path.isdir(szDump):
+                # 目录，枚举目录中的所有dmp文件到列表
+                dumpArray = LoadAllFileInDir(szDump, ".dmp")
+            else:
+                # 文件，加载文件，然后调试每个文件
+                dumpArray = LoadFileToArray(szDump)
+
+    if len(dumpArray) > 0:
+        i = 1
+        for line in dumpArray:
+            opt.Dump = line
+            out = str(i) + "/" + str(len(dumpArray))
+            out = out + " " * (20 - len(out)) + ": " + line + "  --┐"
+            print(out)
+            ret = RunDebugDump(opt, args)
+            print(" " * (len(out) - 1) + "└-->  " + ret)
+            i += 1
+
+
+# 主函数
 
 if __name__ == "__main__":
     # 初始化调试器必须的环境变量

@@ -9,13 +9,10 @@
 """
 
 """
-
-import os
-import tempfile
+from Lib.Lib_head import *
 
 # 符号文件路径，可以自动设置
 import configparser
-import uuid
 
 import win32event
 import win32process
@@ -80,32 +77,10 @@ debug_path=
     return True
 
 
-# 创建进程并且等待返回
-
-def RunProcessWaitReturn(exe, cmd):
-    if exe == "" and cmd != "":
-        handle = win32process.CreateProcess(None, cmd, None, None, 0,
-                                            win32process.CREATE_NO_WINDOW, None, None,
-                                            win32process.STARTUPINFO())
-        win32event.WaitForSingleObject(handle[0], -1)
-    elif exe != "" and cmd != "":
-        handle = win32process.CreateProcess(None, exe + " " + cmd, None, None, 0,
-                                            win32process.CREATE_NO_WINDOW, None, None,
-                                            win32process.STARTUPINFO())
-        win32event.WaitForSingleObject(handle[0], -1)
-    elif exe != "" and cmd == "":
-        handle = win32process.CreateProcess(exe, '', None, None, 0,
-                                            win32process.CREATE_NO_WINDOW, None, None,
-                                            win32process.STARTUPINFO())
-        win32event.WaitForSingleObject(handle[0], -1)
-    else:
-        print("CreateProcess Error")
-    pass
-
-
 # 创建进程不等待
 
 def RunProcess(exe, cmd):
+    handle = None
     if exe == "" and cmd != "":
         handle = win32process.CreateProcess(None, cmd, None, None, 0,
                                             win32process.CREATE_NO_WINDOW, None, None,
@@ -120,7 +95,16 @@ def RunProcess(exe, cmd):
                                             win32process.STARTUPINFO())
     else:
         print("CreateProcess Error")
-    pass
+
+    return handle
+
+
+# 创建进程并且等待返回
+
+def RunProcessWaitReturn(exe, cmd):
+    handle = RunProcess(exe, cmd)
+    if handle is not None:
+        win32event.WaitForSingleObject(handle[0], -1)
 
 
 # 设置dump 文件路径，这个必须优先调用
@@ -139,34 +123,6 @@ def SetDebugPath(path):
         debug_path = path
 
 
-# 取一个临时文件的路径，保证文件不存在，返回临时文件路径
-
-def GetTempFilePath():
-    script_file, script_path = tempfile.mkstemp()
-    os.close(script_file)
-    os.unlink(script_path)
-    return script_path
-    pass
-
-
-# 获取临时文件目录
-
-def GetTempDirPath():
-    return os.getenv('TEMP')
-    pass
-
-# 保存内容到一个临时文件，返回临时文件路径
-
-def SaveStringToTempFile(msg):
-    script_path = GetTempFilePath()
-    script_path += ".txt"
-    with open(script_path, "w") as f:
-        f.write(msg)
-        f.close()
-    return script_path
-    pass
-
-
 # 创建一个脚本执行的命令行，通过它可以让windbg 执行脚本，返回这个命令行
 
 def MakeScriptCommand(dump, script_path):
@@ -181,24 +137,6 @@ def MakeDebugToolPath():
     global debug_path
     return '"' + debug_path + '/cdb.exe' + '"'
     pass
-
-
-# 判断当前字符是否是一个16进制数字
-
-def IsANumber(x):
-    if x == '0' or x == '1' or x == '2' or x == '3' or x == '4' or x == '5' or x == '6' or x == '7' or x == '8' or x == '9' or x == 'a' or x == 'b' or x == 'c' or x == 'd' or x == 'e' or x == 'f' or x == 'A' or x == 'B' or x == 'C' or x == 'D' or x == 'E' or x == 'F':
-        return True
-        pass
-    return False
-
-
-# 判断当前字符串是否是一个十六进制数字
-
-def IsNumber(x):
-    for t in x:
-        if not IsANumber(t):
-            return False
-    return True
 
 
 # 执行一个脚本文件
@@ -256,61 +194,6 @@ def RunCommandFileWithDebuger(dump, infile, outfile):
     cmds = LoadFileToArray(infile)
     RunLotCommandWithDebuger(dump, cmds, outfile)
     return outfile
-
-
-# 数据写入文件
-
-def SaveStingIntoFile(info, save_file):
-    with open(save_file, "w") as f:
-        f.write(info)
-        f.close()
-    return save_file
-
-
-# 数据写入文件
-
-def SaveStingArrayIntoFile(info, save_file, split=""):
-    with open(save_file, "w") as f:
-        for line in info:
-            f.write(line + split)
-    return save_file
-
-
-# 加载一个文件到数组
-
-def LoadFileToArray(path):
-    file_line = []
-    file = open(path)
-    for line in file.readlines():
-        line = line.strip('\n')
-        file_line.append(line)
-    file.close()
-    return file_line
-
-
-# 创建一个 UUID
-
-def uuid1():
-    return str(uuid.uuid1()).replace("-","")
-
-
-# 从一个目录中，获取指定索引的一个文件名字，并且保证这个文件在文件名字获取的时候，是不存在，可用的
-
-def GetFilePathInDir(dir, step, uuid = False):
-    file = dir + '/output.' + str(step) + '.txt'
-    if uuid:
-        file += '.' + uuid1() + '.txt'
-    if os.path.exists(file):
-        os.unlink(file)
-    return file
-
-
-# 判断字符串是否有效
-
-def IsStringValid(p):
-    if p is not None and p != "":
-        return True
-    return False
 
 
 # 去除文件中log 部分信息
