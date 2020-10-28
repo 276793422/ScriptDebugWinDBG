@@ -52,3 +52,28 @@
 
 
 # 遵循GPL协议就可以了
+
+
+### 帮助
+#### 1：调试多个dump，位于“D:\dump\4\dump_1603817706”目录中，只输出检查信息，输出结果放到“D:\dump\4\dump_1603817706\analyze”目录中
+####    python3 DebugMain.py --muldump --analyze -d D:\dump\4\dump_1603817706 --outdir D:\dump\4\dump_1603817706\analyze
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

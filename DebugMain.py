@@ -12,6 +12,7 @@
 import sys
 
 from Stdafx_head import *
+from shutil import copyfile
 
 
 def RunDebugDump(opt, args):
@@ -76,13 +77,33 @@ def RunDebugDump(opt, args):
                 out_file = AnalyzeDebug(opt.Dump, opt.OutDir)
         if out_file is None:
             print("需要参数 -d , --outdir")
+    elif opt.Errline:
+        # --errline -d D:\dump\3\MEMORY\MEMORY.DMP --outdir D:\dump\2.2
+        # 参数1 ，dmp 文件，必须是32位的
+        # 参数2 ，结果输出路径
+        if IsStringValid(opt.Dump):
+            if IsStringValid(opt.OutDir) or opt.DefaultShow:
+                out_file = GetErrorLine(opt.Dump, opt.OutDir, opt.Answer)
+        if out_file is None:
+            print("需要参数 -d , --outdir")
     else:
         print("关键参数啥都没有，去看帮助吧")
 
     if IsStringValid(out_file):
         RemoveFileLogInfo(out_file)
+
+    # 如果要求默认展示
     if opt.DefaultShow and IsStringValid(out_file):
         RunProcess("notepad.exe", out_file)
+
+    # 如果不要求默认展示，就需要保存
+    elif not opt.DefaultShow and IsStringValid(out_file):
+        if IsStringValid(opt.Dump):
+            dump_name = os.path.basename(opt.Dump)
+            dump_name = os.path.dirname(out_file) + "\\" + dump_name + ".dmp.out.txt"
+            copyfile(out_file, dump_name)
+            os.remove(out_file)
+            out_file = dump_name
 
     return out_file
 
@@ -92,6 +113,12 @@ def RunDebugDump(opt, args):
 def RunDebug():
     opt, args = GetArgsInfo()
     dumpArray = []
+
+    if not IsStringValid(opt.Dump):
+        print("Dump 文件路径异常，无法继续，提前退出，检查 -d 参数")
+        return
+
+    print("DumpFile : [" + opt.Dump + "]")
 
     # 单个dump
     if opt.MulDump is None or opt.MulDump == False:
