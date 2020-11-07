@@ -47,5 +47,3 @@ def GetFilePathInDir(dir, step, uuid = False):
 
 def uuid1():
     return str(uuid.uuid1()).replace("-","")
-
-

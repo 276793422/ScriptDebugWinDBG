@@ -50,29 +50,3 @@ def CallStack(dump, dir=None):
 def GetAnalyzeS(dump, output_file):
     RunCommandWithDebuger(dump, "!analyze -v", output_file)
     pass
-
-
-def CommandControl(out_file, i):
-    if i == 1:
-        return "E:\\temp\\2.txt"
-    if i == 2:
-        return "E:\\temp\\3.txt"
-    else:
-        return ""
-
-
-def CallStackS(dump, dir=None):
-    # 第一步，取内存所有信息
-    if dir is None:
-        dir = GetTempDirPath()
-
-    file1 = GetFilePathInDir(dir, 1, True)
-    file2 = GetFilePathInDir(dir, 2, True)
-
-    # 第一步工作在这里，后续所有工作都再回调函数里面处理
-    SaveStingIntoFile("!analyze -v", file1)
-
-    RunCommandFileWithDebugerEvent(dump, file1, file2, CommandControl)
-
-    return file2
-    pass

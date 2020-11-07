@@ -9,6 +9,8 @@
 """
 
 """
+import win32api
+
 from .BaseLibrary import *
 from Lib.Lib_head import *
 
@@ -42,14 +44,13 @@ def GetScriptFillToList(infile, py_wait_name, py_set_name, next_script_file):
 # 这里的功能是让WinDBG执行一个脚本之后，卡住，停一下，停下之后等待下一步的功能
 # 通过回调函数来设置下一步操作
 # dump ： 要调试的dump 文件
-# infile ： 第一阶段的脚本命令，所在文件
 # outfile ： 输出结果文件
 # function ： 回调函数
 #       参数1 ，之前输出的所有结果
 #       参数2 ，当前进入回调函数的次数，第一次进入，就是1
 #       返回值，下一阶段执行的脚本路径,如果下一阶段没有任务了，那么会返回None 或者 空字符串
 
-def RunCommandFileWithDebugerEvent(dump, infile, outfile, function):
+def RunCommandFileWithDebugerEvent(dump, outfile, function):
 
     next_script_file = GetFilePathInDir(GetTempDirPath(), 0, True)
     out_file = GetFilePathInDir(GetTempDirPath(), 0, True)
@@ -58,11 +59,18 @@ def RunCommandFileWithDebugerEvent(dump, infile, outfile, function):
     set_name_src = "Global\\\\ZooTestSet"
     py_set_name = set_name_src
     cmds = []
+
     # 加载信号模块
     rootPath = os.path.abspath(os.path.dirname(__file__) + "\\..\\..\\Bin\\zoo_event.dll")
     cmds.append(".load " + rootPath)
+    infile = MakeFileExist(GetTempFilePath() + ".txt")
+
     # 加载脚本指令
     cmds.extend(GetScriptFillToList(infile, py_wait_name, py_set_name, next_script_file))
+
+    # 用完了就删了吧
+    DeleteExistFile(infile)
+
     # 执行脚本，以后全部执行都是在这里做的
     RunLotCommandWithDebuger(dump, cmds, out_file, False)
 
@@ -72,14 +80,14 @@ def RunCommandFileWithDebugerEvent(dump, infile, outfile, function):
         CreateNameEventWait(py_wait_name.replace("\\\\", "\\"))
         # 参数1 ，之前输出的所有结果
         # 返回值，下一阶段执行的脚本路径,如果下一阶段没有任务了，那么会返回None 或者 空字符串
-        next_file = function(out_file, i + 1)
+        next_file = function(out_file, i)
 
         lines = []
         lines.append(".echo ")
-        lines.append(".echo step " + str(i + 1) + " " + "-" * 150)
+        lines.append(".echo step " + str(i) + " " + "-" * 150)
         lines.append(".echo ")
         # 退出了
-        if next_file is None or next_file == "":
+        if next_file is None or next_file == "" or os.path.exists(next_file) is False:
             lines.append(".echo Return Success")
             SaveStingArrayIntoFile(lines, next_script_file, "\n")
             pass

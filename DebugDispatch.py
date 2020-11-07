@@ -68,16 +68,16 @@ def RunDebugDump(opt, args):
                 out_file = CallStack(opt.Dump, opt.OutDir)
         if out_file is None:
             print("需要参数 -d , --outdir")
-    elif opt.CallstackS:
+    elif opt.ScriptDebug:
         # 在一个环境中处理完整个调试命令
-        # --callstacks -d D:\dump\3\MEMORY\MEMORY.DMP --outdir D:\dump\2.2
+        # --scriptdebug --defshow -d D:\dump\3\MEMORY\MEMORY.DMP --scriptfile D:\1.py
         # 参数1 ，dmp 文件，必须是32位的
         # 参数2 ，结果输出路径
-        if IsStringValid(opt.Dump):
+        if IsStringValid(opt.Dump) and IsStringValid(opt.ScriptFile):
             if IsStringValid(opt.OutDir) or opt.DefaultShow:
-                out_file = CallStackS(opt.Dump, opt.OutDir)
+                out_file = ScriptDebugInfo(opt.Dump, opt.ScriptFile, opt.OutDir)
         if out_file is None:
-            print("需要参数 -d , --outdir")
+            print("需要参数 -d ， --scriptfile, --outdir")
     elif opt.Analyze:
         # 参数1 ，dmp 文件，必须是32位的
         # 参数2 ，结果输出路径

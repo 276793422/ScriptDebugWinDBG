@@ -20,3 +20,4 @@ from .AnalyzeDebug import *
 from .CallStack import *
 from .CommandControl import *
 from .ErrorLineGet import *
+from .ScriptDebug import *

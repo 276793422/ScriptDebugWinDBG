@@ -66,3 +66,27 @@ def LoadAllFileInDir(file_dir, ext=None):
             if ext is not None and os.path.splitext(file)[1] == ext:
                 list.append(os.path.join(root, file))
     return list
+
+
+# 保证文件存在，不管怎么样都保证文件存在，如果不存在，就创建一个
+
+def MakeFileExist(file):
+    if os.path.exists(file):
+        return file
+    with open(file, "w") as f:
+        f.close()
+    return file
+
+
+# 保证文件不存在
+
+def DeleteExistFile(file):
+    if os.path.exists(file):
+        os.remove(file)
+    return file
+
+
+
+
+
+
