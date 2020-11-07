@@ -35,7 +35,7 @@ def GetTempDirPath():
 # 从一个目录中，获取指定索引的一个文件名字，并且保证这个文件在文件名字获取的时候，是不存在，可用的
 
 def GetFilePathInDir(dir, step, uuid = False):
-    file = dir + '/output.' + str(step) + '.txt'
+    file = dir + '\\output.' + str(step) + '.txt'
     if uuid:
         file += '.' + uuid1() + '.txt'
     if os.path.exists(file):

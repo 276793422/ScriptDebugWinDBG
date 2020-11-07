@@ -47,7 +47,7 @@ def SaveStingArrayIntoFile(info, save_file, split=""):
 
 def LoadFileToArray(path):
     file_line = []
-    file = open(path)
+    file = open(path, errors='ignore')
     for line in file.readlines():
         line = line.strip('\n')
         file_line.append(line)

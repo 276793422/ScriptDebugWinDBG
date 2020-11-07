@@ -11,6 +11,7 @@
 """
 
 from .Lib.BaseLibrary import *
+from .Lib.BaseLibraryEvent import *
 
 from .HeapMemory import *
 from .AddressMemory import *

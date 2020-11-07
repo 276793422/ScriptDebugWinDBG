@@ -104,9 +104,9 @@ def RunProcess(exe, cmd):
 
 # 创建进程并且等待返回
 
-def RunProcessWaitReturn(exe, cmd):
+def RunProcessWaitReturn(exe, cmd, wait=True):
     handle = RunProcess(exe, cmd)
-    if handle is not None:
+    if handle is not None and wait:
         win32event.WaitForSingleObject(handle[0], -1)
 
 
@@ -150,41 +150,42 @@ def MakeDebugToolPath():
 
 # 执行一个脚本文件
 
-def RunFileWithDebuger(dump, file):
+def RunFileWithDebuger(dump, file, wait=True):
     script_path = file
     debug_tool = MakeDebugToolPath()
     debug_cmd = MakeScriptCommand(dump, script_path)
     try:
-        RunProcessWaitReturn(debug_tool, debug_cmd)
+        RunProcessWaitReturn(debug_tool, debug_cmd, wait)
         pass
     except Exception as e:
         print(e)
-    os.unlink(script_path)
+    if wait:
+        os.unlink(script_path)
     pass
 
 
 # 执行一段脚本
 
-def RunScriptWithDebuger(dump, script):
-    RunFileWithDebuger(dump, SaveStringToTempFile(script))
+def RunScriptWithDebuger(dump, script, wait=True):
+    RunFileWithDebuger(dump, SaveStringToTempFile(script), wait)
 
 
 # 执行一条命令
 
-def RunCommandWithDebuger(dump, cmd, out_path):
+def RunCommandWithDebuger(dump, cmd, out_path, wait=True):
     script_text = '''
 .logopen ''' + out_path + '''
 ''' + cmd + '''
 .logclose
 q
 '''
-    RunScriptWithDebuger(dump, script_text)
+    RunScriptWithDebuger(dump, script_text, wait)
     pass
 
 
 # 执行多条命令
 
-def RunLotCommandWithDebuger(dump, cmds, out_path):
+def RunLotCommandWithDebuger(dump, cmds, out_path, wait=True):
     cmd = ""
     for line in cmds:
         if cmd == "":
@@ -194,14 +195,14 @@ def RunLotCommandWithDebuger(dump, cmds, out_path):
                 cmd += "\n"
         cmd += line
 
-    RunCommandWithDebuger(dump, cmd, out_path)
+    RunCommandWithDebuger(dump, cmd, out_path, wait)
 
 
 # 执行一个命令文件
 
-def RunCommandFileWithDebuger(dump, infile, outfile):
+def RunCommandFileWithDebuger(dump, infile, outfile, wait=True):
     cmds = LoadFileToArray(infile)
-    RunLotCommandWithDebuger(dump, cmds, outfile)
+    RunLotCommandWithDebuger(dump, cmds, outfile, wait)
     return outfile
 
 
@@ -218,6 +219,28 @@ def RemoveFileLogInfo(file):
         # 第一行去掉
         if start == 1 and line.startswith("Opened log file "):
             continue
+        # 加载wait 插件的模块去掉
+        if start == 2 and line.startswith("kd> .load ") and line.endswith("zoo_event.dll"):
+            continue
+
+        # set 功能函数去掉
+        if line.startswith("kd> !zoo_set"):
+            continue
+        if line.startswith("Info:    Set Event Name = "):
+            continue
+        if line.startswith("Info:    Set Event "):
+            continue
+        # wait 功能函数去掉
+        if line.startswith("kd> !zoo_wait"):
+            continue
+        if line.startswith("Info:    Wait Event Name = "):
+            continue
+        if line.startswith("Info:    Wait Event "):
+            continue
+        # 加载脚本功能去掉
+        if line.startswith("kd> $$>< "):
+            continue
+
         # 倒数第三行
         if start == end - 2 and "> .logclose" in line:
             continue

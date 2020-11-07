@@ -13,4 +13,5 @@
 
 from WinDBG.Windbg_head import *
 from Lib.Lib_head import *
+from DebugDispatch import *
 
