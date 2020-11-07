@@ -44,8 +44,12 @@ def GetScriptFillToList(infile, py_wait_name, py_set_name, next_script_file):
 # dump ： 要调试的dump 文件
 # infile ： 第一阶段的脚本命令，所在文件
 # outfile ： 输出结果文件
+# function ： 回调函数
+#       参数1 ，之前输出的所有结果
+#       参数2 ，当前进入回调函数的次数，第一次进入，就是1
+#       返回值，下一阶段执行的脚本路径,如果下一阶段没有任务了，那么会返回None 或者 空字符串
 
-def RunCommandFileWithDebugerEvent(dump, infile, outfile, function, wait=False):
+def RunCommandFileWithDebugerEvent(dump, infile, outfile, function):
 
     next_script_file = GetFilePathInDir(GetTempDirPath(), 0, True)
     out_file = GetFilePathInDir(GetTempDirPath(), 0, True)
@@ -54,15 +58,13 @@ def RunCommandFileWithDebugerEvent(dump, infile, outfile, function, wait=False):
     set_name_src = "Global\\\\ZooTestSet"
     py_set_name = set_name_src
     cmds = []
-
-    rootPath = os.path.abspath(os.path.dirname(__file__) + "\\..\\..\\Bin\\zoo_event.dll")
-
     # 加载信号模块
+    rootPath = os.path.abspath(os.path.dirname(__file__) + "\\..\\..\\Bin\\zoo_event.dll")
     cmds.append(".load " + rootPath)
     # 加载脚本指令
     cmds.extend(GetScriptFillToList(infile, py_wait_name, py_set_name, next_script_file))
     # 执行脚本，以后全部执行都是在这里做的
-    RunLotCommandWithDebuger(dump, cmds, out_file, wait)
+    RunLotCommandWithDebuger(dump, cmds, out_file, False)
 
     # 循环无限次，理论上无限
     for i in range(0, 0xFFFFFFFF):
@@ -70,17 +72,23 @@ def RunCommandFileWithDebugerEvent(dump, infile, outfile, function, wait=False):
         CreateNameEventWait(py_wait_name.replace("\\\\", "\\"))
         # 参数1 ，之前输出的所有结果
         # 返回值，下一阶段执行的脚本路径,如果下一阶段没有任务了，那么会返回None 或者 空字符串
-        next_file = function(out_file)
+        next_file = function(out_file, i + 1)
 
+        lines = []
+        lines.append(".echo ")
+        lines.append(".echo step " + str(i + 1) + " " + "-" * 150)
+        lines.append(".echo ")
+        # 退出了
         if next_file is None or next_file == "":
-            SaveStingIntoFile("", next_script_file)
+            lines.append(".echo Return Success")
+            SaveStingArrayIntoFile(lines, next_script_file, "\n")
             pass
         else:
             # 下一次需要用到的文件
             temp_next_file = GetFilePathInDir(GetTempDirPath(), 0, True)
 
             # next_script_file 下一轮要执行的脚本
-            lines = GetScriptFillToList(next_file, wait_name_src + str(i), set_name_src + str(i), temp_next_file)
+            lines.extend(GetScriptFillToList(next_file, wait_name_src + str(i), set_name_src + str(i), temp_next_file))
 
             # 把脚本放到上一轮循环中，要求放到的位置
             SaveStingArrayIntoFile(lines, next_script_file, "\n")

@@ -52,16 +52,10 @@ def GetAnalyzeS(dump, output_file):
     pass
 
 
-i = 0
-
-
-def CommandControl(out_file):
-    global i
-    if i == 0:
-        i = i + 1
-        return "E:\\temp\\2.txt"
+def CommandControl(out_file, i):
     if i == 1:
-        i = i + 1
+        return "E:\\temp\\2.txt"
+    if i == 2:
         return "E:\\temp\\3.txt"
     else:
         return ""
