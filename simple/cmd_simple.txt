@@ -1,0 +1,1 @@
+python DebugMain.py --scriptdebug --defshow -d D:\dump\3\MEMORY\MEMORY.DMP --scriptfile D:\Python\Python3-debug-with-WinDBG\simple\simple1.py

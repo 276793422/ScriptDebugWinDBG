@@ -58,6 +58,8 @@
 #### 1：调试多个dump，位于“D:\dump\4\dump_1603817706”目录中，只输出检查信息，输出结果放到“D:\dump\4\dump_1603817706\analyze”目录中
 ####    python3 DebugMain.py --muldump --analyze -d D:\dump\4\dump_1603817706 --outdir D:\dump\4\dump_1603817706\analyze
 
+#### 2：使用脚本调试一个dump，脚本文件是 D:\simple1.py，dump 文件是 D:\dump\3\MEMORY\MEMORY.DMP，调试完成直接显示
+####    python DebugMain.py --scriptdebug --defshow -d D:\dump\3\MEMORY\MEMORY.DMP --scriptfile D:\simple1.py
 
 
 
