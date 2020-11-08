@@ -9,6 +9,7 @@
 """
 
 """
+import sys
 
 from Stdafx_head import *
 from shutil import copyfile
@@ -120,11 +121,15 @@ def RunDebugDump(opt, args):
 # 执行调试功能，这里主要分两部分，一部分是单一的dump 调试，一部分是多个dump 调试
 
 def RunDebug():
+    # 如果只有一个参数，就传入一个help，然后让解析参数的地方去处理并且退出
+    if len(sys.argv) == 1:
+        sys.argv.append("--help")
     opt, args = GetArgsInfo()
     dumpArray = []
 
     if not IsStringValid(opt.Dump):
         print("Dump 文件路径异常，无法继续，提前退出，检查 -d 参数")
+        print("只要是非 -h 和 --help 的情况下，任何时候都需要 -d 参数")
         return
 
     print("DumpFile : [" + opt.Dump + "]")
