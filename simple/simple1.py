@@ -13,7 +13,7 @@
 import os
 
 
-def ScriptDebugCommand(out_file, i):
+def ScriptDebugCommand(i, out_file, beginwith):
     global LOCAL_FILE
     dir = os.path.dirname(os.path.abspath(LOCAL_FILE)) + "\\simple1"
     if i == 0:

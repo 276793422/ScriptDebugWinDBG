@@ -46,8 +46,9 @@ def GetScriptFillToList(infile, py_wait_name, py_set_name, next_script_file):
 # dump ： 要调试的dump 文件
 # outfile ： 输出结果文件
 # function ： 回调函数
-#       参数1 ，之前输出的所有结果
-#       参数2 ，当前进入回调函数的次数，第一次进入，就是1
+#       参数1 ，当前进入回调函数的次数，第一次进入，就是1，初次进入是0
+#       参数2 ，之前输出的所有结果，所有结果都在这里，便于查找
+#       参数3 ，上一次命令输出的结果，从哪一行内容开始，当前行之下，都是上一次的结果，便于查找
 #       返回值，下一阶段执行的脚本路径,如果下一阶段没有任务了，那么会返回None 或者 空字符串
 
 def RunCommandFileWithDebugerEvent(dump, outfile, function):
@@ -74,13 +75,16 @@ def RunCommandFileWithDebugerEvent(dump, outfile, function):
     # 执行脚本，以后全部执行都是在这里做的
     RunLotCommandWithDebuger(dump, cmds, out_file, False)
 
+    beginwith = None
     # 循环无限次，理论上无限
     for i in range(0, 0xFFFFFFFF):
         # 脚本等待调试器的信号
         CreateNameEventWait(py_wait_name.replace("\\\\", "\\"))
         # 参数1 ，之前输出的所有结果
         # 返回值，下一阶段执行的脚本路径,如果下一阶段没有任务了，那么会返回None 或者 空字符串
-        next_file = function(out_file, i)
+        if i > 0:
+            beginwith = "step " + str(i - 1) + " " + "-" * 150
+        next_file = function(i, out_file, beginwith)
 
         lines = []
         lines.append(".echo ")

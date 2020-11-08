@@ -220,25 +220,25 @@ def RemoveFileLogInfo(file):
         if start == 1 and line.startswith("Opened log file "):
             continue
         # 加载wait 插件的模块去掉
-        if start == 2 and line.startswith("kd> .load ") and line.endswith("zoo_event.dll"):
+        if start == 2 and line.find("kd> .load ") != -1 and line.endswith("zoo_event.dll"):
             continue
 
         # set 功能函数去掉
-        if line.startswith("kd> !zoo_set"):
+        if line.find("kd> !zoo_set") != -1:
             continue
         if line.startswith("Info:    Set Event Name = "):
             continue
         if line.startswith("Info:    Set Event "):
             continue
         # wait 功能函数去掉
-        if line.startswith("kd> !zoo_wait"):
+        if line.find("kd> !zoo_wait") != -1:
             continue
         if line.startswith("Info:    Wait Event Name = "):
             continue
         if line.startswith("Info:    Wait Event "):
             continue
         # 加载脚本功能去掉
-        if line.startswith("kd> $$>< "):
+        if line.find("kd> $$>< ") != -1:
             continue
 
         # 倒数第三行
