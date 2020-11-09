@@ -15,5 +15,5 @@ from .PathHelper import *
 from .FileHelper import *
 from .StringHelper import *
 from .EventHelper import *
-
+from .ScriptHelper import *
 
