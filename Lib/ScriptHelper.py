@@ -9,6 +9,8 @@
 """
     脚本支持模块
 """
+from .Lib_head import *
+
 import codecs
 from six import exec_
 
@@ -30,9 +32,12 @@ def LoadRunScriptFile(script_file, scope):
 
 
 def RunScriptFile(strategy_file_path):
-    scope = {}
+    # 给内部传入若干函数，供内部可方便调用
+    scope = {
+        'LoadFileToArray': LoadFileToArray,
+        'SaveStingArrayIntoFile': SaveStingArrayIntoFile,
+        'SaveStingIntoFile': SaveStingIntoFile,
+        'GetTempFilePath': GetTempFilePath
+    }
     scope = LoadRunScriptFile(strategy_file_path, scope)
-    f = scope.get('ScriptDebugCommand', None)
-    return f
-
-
+    return scope.get('ScriptDebugCommand', None)
