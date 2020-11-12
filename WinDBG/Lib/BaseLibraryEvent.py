@@ -29,8 +29,10 @@ import win32process
 
 def GetScriptFillToList(infile, py_wait_name, py_set_name, next_script_file):
     cmds = []
+
+    lines = LoadFileToArray(infile)
     # 加载全部命令
-    cmds.extend(LoadFileToArray(infile))
+    cmds.extend(lines)
     # 设置一阶段信号，设置的信号是 python 等待的信号
     cmds.append("!zoo_set \"" + py_wait_name + "\"")
     # 等待一阶段信号，等待的信号是 python 设置的信号

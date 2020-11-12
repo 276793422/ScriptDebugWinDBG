@@ -1,5 +1,16 @@
 # Zoo WinDBG调试脚本
-#### 通过当前脚本，可以在不开启WinDBG的情况下，仅通过一系列的python 脚本和WinDBG命令来对WinDBG做批量调试
+    通过当前脚本，可以在不开启WinDBG的情况下，仅通过一系列的python 脚本和WinDBG命令来对WinDBG做批量调试
+    用这个库来调试和直接写WinDBG脚本来调试的区别是，如果直接写WinDBG脚本来调试的话，很多判断需要用WinDBG脚本命令来判断
+      比如 判断寄存器的值是多少，根据不同的值，取不同的地址来做计算，并准备下一步工作
+      如果使用WinDBG脚本，那么就需要这样:
+          .if (@eax=5) { .echo XXXXX; ...... } .else { .echo YYYYY; ...... } ; gc
+      如果用此框架，那么就容易多了，可以直接用python命令来算
+          if GetEax(last) == 5:
+              print("XXXXXX")
+          else:
+              print("YYYYYY")
+          # 最后保存内容，继续执行
+      WinDBG最大的问题不是需要用命令行来调试，而是WinDBG的命令实在太不亲民
 
 ### 目前最简单的使用方法是，
 ##### 1：配置当前目录下的 config.ini 文件，符号路径可以不填，调试器路径一定要填，否则还调个鸡毛啊
