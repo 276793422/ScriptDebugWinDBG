@@ -47,7 +47,7 @@ def GetAddressUsedInfo(dump, memory_list, output_file):
     for line in result_list:
         if len(line) < 90:
             continue
-        if line[1] == ' ' and line[2] == ' ' and line[10] == ' ' and line[11] == ' ':  # 如果第八位是空格
+        if line[1] == ' ':  # 如果第八位是空格
             x = line
             if ' TEB ' in x:
                 # TEB 内存
@@ -69,7 +69,13 @@ def GetAddressUsedInfo(dump, memory_list, output_file):
                 pass
             if ' Heap ' in x:
                 # 堆内存
-                addr = line[3:9]
+                addr = line[1:]
+                while addr[0] == " ":
+                    addr = addr[1:]
+                i = addr.find(" ")
+                if i == -1:
+                    continue
+                addr = addr[:i]
                 if IsNumber(addr):
                     strCommand += "s -d 0 l?-1 " + addr + "\n"
                 pass
