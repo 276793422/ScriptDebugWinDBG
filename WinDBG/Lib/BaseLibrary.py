@@ -27,6 +27,10 @@ debug_path = ''
 debugger_name = 'cdb.exe'
 
 
+# -z 指定dump
+# -p 指定 PID
+# 什么都不带，直接执行程序
+
 # 初始化调试器相关功能
 
 def InitDebugLibrary():
@@ -55,6 +59,7 @@ symbol_path=
 debug_path=
 '''
         SaveStingIntoFile(save_info, confile)
+        return False
     else:
         # 如果配置文件存在，那么就读配置文件
         # 读取.ini文件

@@ -32,7 +32,8 @@ def ScriptDebugInfo(dump, script, dir=None):
     if ScriptMain is None:
         print("脚本文件内容不正确，需要传入有效文件")
         print("脚本文件内部必须存在一个函数叫做：ScriptDebugCommand")
-        print("函数原型：def ScriptDebugCommand(out_file, i) -> string")
+        print("函数原型：def ScriptDebugCommand(i, out_file, beginwith) -> string")
+        return None
 
     out_file = GetFilePathInDir(dir, 1, True)
 
