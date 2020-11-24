@@ -107,6 +107,14 @@ def HeapMemoryInfo(dump, dir=None):
     file3 = GetFilePathInDir(dir, 3, True)
     GetMemoryAllInfo(file2, file3)
 
+    # 第四步，!heap -flt s [16进制长度]
+    # 查看所有对应长度的内存调用栈，如果没有调用栈，就是所有使用了这个长度内存的位置
+    # 目前这一步没有加，因为太多了
+    #   如果第四步没有调用栈，那么还要增加第五步
+    # 第五步，!heap -p -a [UserSize]
+    # 查看指定一个 UserSize 的调用栈，
+    # 如果第四步看不到调用栈的话，这里大概率也看不到
+
     print("over")
     return file3
     pass

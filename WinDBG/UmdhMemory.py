@@ -77,6 +77,8 @@ def GetAllMemoryIncre(strArray):
     pass
 
 
+# 由于这个命令需要择期执行，并且需要交互，所以还不完善后续考虑整合到脚本执行里面
+
 def UmdhMemoryInfo(file, dir=None):
     if dir is None:
         dir = GetTempDirPath()
