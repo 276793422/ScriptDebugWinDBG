@@ -84,6 +84,52 @@ def GetMemoryAllInfo(memory_file, save_file):
         f.close()
 
 
+def GetCallStack(dump, memory_file, save_file):
+    file_array = LoadFileToArray(memory_file)
+    address_array = []
+    for line in file_array:
+        index = line.find("|")
+        if index == -1:
+            continue
+        line = line[index + 1:]
+        index = line.find(" ")
+        if index == -1:
+            continue
+        line = line[:index]
+        address_array.append(line)
+
+    # address_array = list(set(address_array))
+    for i in range(0, len(address_array)):
+        address_array[i] = "!heap -flt s " + address_array[i]
+
+    RunLotCommandWithDebuger(dump, address_array, save_file)
+
+
+def GetAllCallStack(dump, memory_file, save_file):
+    file_array = LoadFileToArray(memory_file)
+    address_array = []
+    for line in file_array:
+        if not line.startswith("        "):
+            continue
+        line = line[8:]
+        if not IsANumber(line[0]):
+            continue
+        line = line[27:]
+        index = line.find(" ")
+        if index == -1:
+            continue
+        line = line[:index]
+        if not IsNumber(line):
+            continue
+
+        address_array.append(line)
+
+    for i in range(0, len(address_array)):
+        address_array[i] = "!heap -p -a " + address_array[i]
+
+    RunLotCommandWithDebuger(dump, address_array, save_file)
+
+
 # 参数1 ，dmp 文件，必须是32位的
 # 参数2 ，结果输出路径
 # 返回，最终输出结果的文件
@@ -111,10 +157,18 @@ def HeapMemoryInfo(dump, dir=None):
     # 查看所有对应长度的内存调用栈，如果没有调用栈，就是所有使用了这个长度内存的位置
     # 目前这一步没有加，因为太多了
     #   如果第四步没有调用栈，那么还要增加第五步
+    # 第四步是非常耗时的，如果要执行，需要想清楚，否则的话，这里是会死人的
+    print("step 4")
+    file4 = GetFilePathInDir(dir, 4, True)
+    GetCallStack(dump, file3, file4)
+
     # 第五步，!heap -p -a [UserSize]
     # 查看指定一个 UserSize 的调用栈，
     # 如果第四步看不到调用栈的话，这里大概率也看不到
+    print("step 5")
+    file5 = GetFilePathInDir(dir, 5, True)
+    GetAllCallStack(dump, file4, file5)
 
     print("over")
-    return file3
+    return file5
     pass
