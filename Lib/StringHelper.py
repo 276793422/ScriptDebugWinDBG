@@ -24,6 +24,9 @@ def IsANumber(x):
 # 判断当前字符串是否是一个十六进制数字
 
 def IsNumber(x):
+    if x.startswith("0x"):
+        x = x[2:]
+    x = x.replace("`", "")
     for t in x:
         if not IsANumber(t):
             return False
